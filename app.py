@@ -188,9 +188,10 @@ def save_log():
         sheet = get_sheet("Log")
         all_values = sheet.get_all_values()
         header = ["session_id", "fecha", "semana", "dia", "seccion", "ejercicio", "sets", "reps", "peso", "comentario"]
-        if not all_values or all_values[0] != header:
-            sheet.clear()
+        if not all_values:
             sheet.append_row(header)
+        elif all_values[0] != header:
+            sheet.update(range_name="A1", values=[header])
         for row in data["rows"]:
             sheet.append_row([
                 data["session_id"], data["fecha"], data["semana"], data["dia"],
