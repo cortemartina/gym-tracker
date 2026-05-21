@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
+  <title>Gym Tracker</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --surface: #1a1a1a;
+      --surface2: #252525;
+      --border: #333;
+      --accent: #e8ff47;
+      --text: #f0f0f0;
+      --text-muted: #888;
+      --danger: #ff4f4f;
+      --success: #4caf50;
+      --radius: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 15px;
+      min-height: 100vh;
+    }
+
+    /* ── LOGIN ── */
+    .login-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 32px;
+      text-align: center;
+    }
+    .login-logo { font-size: 48px; margin-bottom: 16px; }
+    .login-title { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+    .login-sub { color: var(--text-muted); margin-bottom: 40px; font-size: 15px; }
+    .btn-google {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: #fff;
+      color: #333;
+      border: none;
+      border-radius: 10px;
+      padding: 14px 24px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity .2s;
+    }
+    .btn-google:active { opacity: .8; }
+    .btn-google svg { width: 22px; height: 22px; }
+
+    /* ── NAV ── */
+    nav {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    nav button {
+      flex: 1;
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 14px 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all .2s;
+    }
+    nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+    .nav-logout {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 14px 12px;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    /* ── PAGES ── */
+    .page { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
+    .page.active { display: block; }
+
+    /* ── CARDS ── */
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px;
+      margin-bottom: 14px;
+    }
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    /* ── FORM ── */
+    select, input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      padding: 10px 12px;
+      font-size: 15px;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+    select:focus, input:focus { outline: 2px solid var(--accent); }
+    label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; margin-top: 10px; }
+    label:first-child { margin-top: 0; }
+    .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+    /* ── BUTTONS ── */
+    .btn {
+      display: block; width: 100%; padding: 13px;
+      border-radius: var(--radius); border: none;
+      font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity .2s;
+    }
+    .btn:active { opacity: .7; }
+    .btn-primary { background: var(--accent); color: #000; }
+    .btn-secondary { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+
+    /* ── EXERCISE ROWS ── */
+    .exercise-row {
+      display: grid;
+      grid-template-columns: 1fr 48px 48px 72px;
+      gap: 6px;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .exercise-row:last-child { border-bottom: none; }
+    .exercise-name { font-size: 14px; }
+    .exercise-meta { font-size: 12px; color: var(--text-muted); text-align: center; }
+    .col-header { font-size: 11px; color: var(--text-muted); text-align: center; font-weight: 600; }
+    .weight-input {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 6px; color: var(--text);
+      padding: 6px 8px; font-size: 14px; text-align: center; width: 100%;
+    }
+    .weight-input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+    .activation-row {
+      display: grid; grid-template-columns: 1fr 48px 48px;
+      gap: 6px; align-items: center;
+      padding: 6px 0; border-bottom: 1px solid var(--border);
+    }
+    .activation-row:last-child { border-bottom: none; }
+
+    /* ── STATUS ── */
+    .status {
+      padding: 10px 14px; border-radius: var(--radius);
+      font-size: 13px; margin-bottom: 12px; display: none;
+    }
+    .status.success { background: #1a2e1a; border: 1px solid var(--success); color: var(--success); display: block; }
+    .status.error { background: #2e1a1a; border: 1px solid var(--danger); color: var(--danger); display: block; }
+
+    /* ── LOG ── */
+    .log-session {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 12px; margin-bottom: 12px;
+    }
+    .log-session-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+    .log-date { font-weight: 700; }
+    .log-meta { font-size: 12px; color: var(--text-muted); }
+    .log-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .log-table th { text-align: left; color: var(--text-muted); font-weight: 600; padding: 4px 6px; border-bottom: 1px solid var(--border); }
+    .log-table td { padding: 5px 6px; border-bottom: 1px solid var(--border); }
+    .log-table tr:last-child td { border-bottom: none; }
+    .edit-peso {
+      background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 4px; color: var(--text);
+      padding: 3px 6px; font-size: 13px; width: 60px; text-align: center;
+    }
+
+    /* ── TEMPLATES ── */
+    .day-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+    .day-tab {
+      padding: 8px 16px; border-radius: 20px;
+      border: 1px solid var(--border); background: var(--surface2);
+      color: var(--text-muted); cursor: pointer; font-size: 14px; font-weight: 600;
+    }
+    .day-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+    .exercise-editor {
+      display: grid; grid-template-columns: 1fr 60px 60px 28px;
+      gap: 6px; align-items: center; margin-bottom: 6px;
+    }
+    .exercise-editor input { padding: 8px 10px; font-size: 14px; }
+    .remove-btn { background: none; border: none; color: var(--danger); font-size: 18px; cursor: pointer; padding: 4px; }
+    .add-ex-btn {
+      background: none; border: 1px dashed var(--border);
+      border-radius: 6px; color: var(--text-muted);
+      padding: 8px; width: 100%; cursor: pointer; font-size: 13px; margin-top: 4px;
+    }
+    .add-ex-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+    .spinner {
+      display: inline-block; width: 16px; height: 16px;
+      border: 2px solid #444; border-top-color: var(--accent);
+      border-radius: 50%; animation: spin .6s linear infinite;
+      vertical-align: middle; margin-right: 6px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .empty-state { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 14px; }
+  </style>
+</head>
+<body>
+
+{% if not logged_in %}
+<!-- ══════════════════════════════════════════════
+     LOGIN SCREEN
+══════════════════════════════════════════════ -->
+<div class="login-screen">
+  <div class="login-logo">🏋️</div>
+  <div class="login-title">Gym Tracker</div>
+  <div class="login-sub">Iniciá sesión para acceder a tu entrenamiento</div>
+  <a href="/login" class="btn-google">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+      <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+      <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+      <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+      <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+    </svg>
+    Continuar con Google
+  </a>
+</div>
+
+{% else %}
+<!-- ══════════════════════════════════════════════
+     APP
+══════════════════════════════════════════════ -->
+<nav>
+  <button class="active" onclick="showPage('train', this)">Entrenar</button>
+  <button onclick="showPage('log', this)">Historial</button>
+  <button onclick="showPage('templates', this)">Rutinas</button>
+  <a href="/logout" class="nav-logout">Salir</a>
+</nav>
+
+<!-- ENTRENAR -->
+<div id="page-train" class="page active">
+  <div class="card">
+    <div class="row2" style="margin-bottom:10px">
+      <div>
+        <label>Fecha</label>
+        <div id="today-date" style="font-size:16px;font-weight:700;padding:10px 0 4px"></div>
+      </div>
+      <div>
+        <label>Semana</label>
+        <select id="sel-semana" onchange="resetDia()">
+          <option value="">—</option>
+          <option>1</option><option>2</option><option>3</option><option>4</option>
+        </select>
+      </div>
+    </div>
+    <label>Día de entrenamiento</label>
+    <select id="sel-dia" onchange="loadTemplate()">
+      <option value="">Elegí el día</option>
+      <option value="1">Día 1</option>
+      <option value="2">Día 2</option>
+      <option value="3">Día 3</option>
+      <option value="4">Día 4</option>
+    </select>
+  </div>
+  <div id="train-status" class="status"></div>
+  <div id="train-content"></div>
+  <div id="train-save-btn" style="display:none;margin-top:8px">
+    <button class="btn btn-primary" onclick="saveWorkout()">💾 Guardar entrenamiento</button>
+  </div>
+</div>
+
+<!-- HISTORIAL -->
+<div id="page-log" class="page">
+  <div id="log-status" class="status"></div>
+  <div id="log-content"><div class="empty-state">Cargando historial…</div></div>
+</div>
+
+<!-- RUTINAS -->
+<div id="page-templates" class="page">
+  <div id="tpl-status" class="status"></div>
+  <div class="day-tabs">
+    <div class="day-tab active" onclick="selectTplDay(1)">Día 1</div>
+    <div class="day-tab" onclick="selectTplDay(2)">Día 2</div>
+    <div class="day-tab" onclick="selectTplDay(3)">Día 3</div>
+    <div class="day-tab" onclick="selectTplDay(4)">Día 4</div>
+  </div>
+  <div id="tpl-editor"></div>
+  <button class="btn btn-primary" style="margin-top:8px" onclick="saveTemplate()">
+    💾 Guardar rutina del día
+  </button>
+</div>
+
+<script>
+let templates = {};
+let currentTplDay = 1;
+
+document.addEventListener("DOMContentLoaded", () => {
+  setTodayDate();
+  fetchTemplates();
+});
+
+function setTodayDate() {
+  const d = new Date();
+  document.getElementById("today-date").textContent =
+    d.toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short" });
+}
+
+function showPage(name, btn) {
+  document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll("nav button").forEach(b => b.classList.remove("active"));
+  document.getElementById("page-" + name).classList.add("active");
+  if (btn) btn.classList.add("active");
+  if (name === "log") loadLog();
+  if (name === "templates") renderTplEditor();
+}
+
+// ── TEMPLATES ──
+async function fetchTemplates() {
+  try {
+    const res = await fetch("/api/templates");
+    if (res.status === 401) { window.location = "/login"; return; }
+    const data = await res.json();
+    if (data.ok) templates = data.templates;
+  } catch (e) { console.error(e); }
+}
+
+// ── ENTRENAR ──
+function resetDia() {
+  document.getElementById("sel-dia").value = "";
+  document.getElementById("train-content").innerHTML = "";
+  document.getElementById("train-save-btn").style.display = "none";
+  setStatus("train-status", "", "");
+}
+
+function loadTemplate() {
+  const dia = document.getElementById("sel-dia").value;
+  const content = document.getElementById("train-content");
+  const saveBtn = document.getElementById("train-save-btn");
+  if (!dia) { content.innerHTML = ""; saveBtn.style.display = "none"; return; }
+  const tpl = templates[dia];
+  if (!tpl) {
+    content.innerHTML = `<div class="empty-state">No hay rutina para el Día ${dia}.<br>Cargala en <strong>Rutinas</strong>.</div>`;
+    saveBtn.style.display = "none";
+    return;
+  }
+  let html = "";
+  if (tpl.activacion && tpl.activacion.length) {
+    html += `<div class="card"><div class="card-title">Activación</div>
+      <div class="activation-row" style="padding-bottom:6px;border-bottom:1px solid var(--border)">
+        <span class="col-header" style="text-align:left">Ejercicio</span>
+        <span class="col-header">Sets</span><span class="col-header">Reps</span>
+      </div>`;
+    tpl.activacion.forEach(ex => {
+      html += `<div class="activation-row">
+        <span class="exercise-name">${ex.nombre}</span>
+        <span class="exercise-meta">${ex.sets}</span>
+        <span class="exercise-meta">${ex.reps}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+  ["A","B","C","D"].forEach(bloque => {
+    const ejercicios = tpl.bloques[bloque];
+    if (!ejercicios || !ejercicios.length) return;
+    html += `<div class="card"><div class="card-title">Bloque ${bloque}</div>
+      <div class="exercise-row">
+        <span class="col-header" style="text-align:left">Ejercicio</span>
+        <span class="col-header">Sets</span>
+        <span class="col-header">Reps</span>
+        <span class="col-header">Peso</span>
+      </div>`;
+    ejercicios.forEach((ex, i) => {
+      html += `<div class="exercise-row">
+        <span class="exercise-name">${ex.nombre}</span>
+        <input type="text" inputmode="text" class="weight-input" id="sets-${bloque}-${i}" value="${ex.sets}" style="text-align:center" />
+        <input type="text" inputmode="text" class="weight-input" id="reps-${bloque}-${i}" value="${ex.reps}" style="text-align:center" />
+        <input type="number" inputmode="decimal" class="weight-input" id="peso-${bloque}-${i}" placeholder="kg" step="0.5" min="0" />
+      </div>`;
+    });
+    html += `</div>`;
+  });
+  content.innerHTML = html;
+  saveBtn.style.display = "block";
+  setStatus("train-status", "", "");
+}
+
+async function saveWorkout() {
+  const dia = document.getElementById("sel-dia").value;
+  const semana = document.getElementById("sel-semana").value;
+  if (!semana) { setStatus("train-status", "Elegí la semana antes de guardar.", "error"); return; }
+  const tpl = templates[dia];
+  const rows = [];
+  const sessionId = Date.now().toString();
+  const fecha = new Date().toLocaleDateString("es-AR");
+  if (tpl.activacion) {
+    tpl.activacion.forEach(ex => {
+      rows.push({ seccion: "activacion", ejercicio: ex.nombre, sets: ex.sets, reps: ex.reps, peso: "" });
+    });
+  }
+  ["A","B","C","D"].forEach(bloque => {
+    const ejercicios = tpl.bloques[bloque];
+    if (!ejercicios) return;
+    ejercicios.forEach((ex, i) => {
+      const peso = document.getElementById(`peso-${bloque}-${i}`)?.value || "";
+      const sets = document.getElementById(`sets-${bloque}-${i}`)?.value || ex.sets;
+      const reps = document.getElementById(`reps-${bloque}-${i}`)?.value || ex.reps;
+      rows.push({ seccion: bloque, ejercicio: ex.nombre, sets, reps, peso });
+    });
+  });
+  const btn = document.querySelector("#train-save-btn .btn");
+  btn.innerHTML = `<span class="spinner"></span> Guardando…`;
+  btn.disabled = true;
+  try {
+    const res = await fetch("/api/log", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ session_id: sessionId, fecha, semana, dia, rows })
+    });
+    if (res.status === 401) { window.location = "/login"; return; }
+    const data = await res.json();
+    if (data.ok) {
+      setStatus("train-status", "✅ Entrenamiento guardado correctamente.", "success");
+      btn.innerHTML = "✅ Guardado";
+      setTimeout(() => {
+        document.getElementById("sel-semana").value = "";
+        document.getElementById("sel-dia").value = "";
+        document.getElementById("train-content").innerHTML = "";
+        document.getElementById("train-save-btn").style.display = "none";
+        setStatus("train-status", "", "");
+      }, 2000);
+    } else { throw new Error(data.error); }
+  } catch (e) {
+    setStatus("train-status", "❌ Error: " + e.message, "error");
+    btn.innerHTML = "💾 Guardar entrenamiento";
+    btn.disabled = false;
+  }
+}
+
+// ── HISTORIAL ──
+async function loadLog() {
+  const content = document.getElementById("log-content");
+  content.innerHTML = `<div class="empty-state"><span class="spinner"></span> Cargando…</div>`;
+  try {
+    const res = await fetch("/api/log");
+    if (res.status === 401) { window.location = "/login"; return; }
+    const data = await res.json();
+    if (!data.ok) throw new Error(data.error);
+    if (!data.log.length) {
+      content.innerHTML = `<div class="empty-state">Todavía no hay entrenamientos registrados.</div>`;
+      return;
+    }
+    const sessions = {};
+    data.log.forEach(row => {
+      if (!sessions[row.session_id]) sessions[row.session_id] = { meta: row, rows: [] };
+      sessions[row.session_id].rows.push(row);
+    });
+    let html = "";
+    Object.values(sessions).reverse().forEach(({ meta, rows }) => {
+      html += `<div class="log-session">
+        <div class="log-session-header">
+          <span class="log-date">${meta.fecha}</span>
+          <span class="log-meta">Semana ${meta.semana} · Día ${meta.dia}</span>
+        </div>
+        <table class="log-table">
+          <tr><th>Bloque</th><th>Ejercicio</th><th>Sets</th><th>Reps</th><th>Peso</th></tr>`;
+      rows.forEach(row => {
+        if (row.seccion === "activacion") {
+          html += `<tr><td style="color:var(--text-muted)">Act.</td><td>${row.ejercicio}</td><td>${row.sets}</td><td>${row.reps}</td><td>—</td></tr>`;
+        } else {
+          html += `<tr><td>${row.seccion}</td><td>${row.ejercicio}</td><td>${row.sets}</td><td>${row.reps}</td>
+            <td><input class="edit-peso" type="number" inputmode="decimal" value="${row.peso}" step="0.5" min="0"
+              data-sid="${row.session_id}" data-ej="${row.ejercicio}" data-sec="${row.seccion}"
+              onchange="updatePeso(this)" /></td></tr>`;
+        }
+      });
+      html += `</table></div>`;
+    });
+    content.innerHTML = html;
+  } catch (e) {
+    content.innerHTML = `<div class="empty-state" style="color:var(--danger)">Error: ${e.message}</div>`;
+  }
+}
+
+async function updatePeso(input) {
+  const { sid, ej, sec } = input.dataset;
+  try {
+    const res = await fetch(`/api/log/${sid}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ejercicio: ej, seccion: sec, peso: input.value })
+    });
+    if (res.status === 401) { window.location = "/login"; return; }
+    const data = await res.json();
+    input.style.outline = data.ok ? "2px solid var(--success)" : "2px solid var(--danger)";
+    setTimeout(() => input.style.outline = "", 1200);
+  } catch (e) { input.style.outline = "2px solid var(--danger)"; }
+}
+
+// ── RUTINAS ──
+function selectTplDay(day) {
+  currentTplDay = day;
+  document.querySelectorAll(".day-tab").forEach((t, i) => t.classList.toggle("active", i + 1 === day));
+  renderTplEditor();
+}
+
+function renderTplEditor() {
+  const day = currentTplDay;
+  const tpl = templates[day] || {
+    activacion: [{nombre:"",sets:"",reps:""}],
+    bloques: {
+      A:[{nombre:"",sets:"",reps:""},{nombre:"",sets:"",reps:""}],
+      B:[{nombre:"",sets:"",reps:""},{nombre:"",sets:"",reps:""}],
+      C:[{nombre:"",sets:"",reps:""},{nombre:"",sets:"",reps:""}],
+      D:[{nombre:"",sets:"",reps:""},{nombre:"",sets:"",reps:""}]
+    }
+  };
+  let html = `<div class="card"><div class="card-title">Activación</div>`;
+  tpl.activacion.forEach((ex, i) => { html += exerciseEditorRow("activacion", i, ex); });
+  html += `<button class="add-ex-btn" onclick="addExercise('activacion')">+ agregar ejercicio</button></div>`;
+  ["A","B","C","D"].forEach(bloque => {
+    const ejercicios = tpl.bloques[bloque] || [];
+    html += `<div class="card"><div class="card-title">Bloque ${bloque}</div>`;
+    ejercicios.forEach((ex, i) => { html += exerciseEditorRow(bloque, i, ex); });
+    html += `<button class="add-ex-btn" onclick="addExercise('${bloque}')">+ agregar ejercicio</button></div>`;
+  });
+  document.getElementById("tpl-editor").innerHTML = html;
+}
+
+function exerciseEditorRow(section, index, ex) {
+  return `<div class="exercise-editor">
+    <input type="text" placeholder="Ejercicio" value="${ex.nombre || ""}"
+           data-section="${section}" data-index="${index}" data-field="nombre" oninput="updateTplField(this)" />
+    <input type="text" placeholder="Sets" value="${ex.sets || ""}"
+           data-section="${section}" data-index="${index}" data-field="sets" oninput="updateTplField(this)" />
+    <input type="text" placeholder="Reps" value="${ex.reps || ""}"
+           data-section="${section}" data-index="${index}" data-field="reps" oninput="updateTplField(this)" />
+    <button class="remove-btn" onclick="removeExercise('${section}', ${index})">×</button>
+  </div>`;
+}
+
+function ensureTplDay() {
+  const day = currentTplDay;
+  if (!templates[day]) templates[day] = { activacion: [], bloques: { A:[], B:[], C:[], D:[] } };
+}
+
+function updateTplField(input) {
+  ensureTplDay();
+  const { section, index, field } = input.dataset;
+  const i = parseInt(index);
+  const day = currentTplDay;
+  if (section === "activacion") {
+    if (!templates[day].activacion[i]) templates[day].activacion[i] = {nombre:"",sets:"",reps:""};
+    templates[day].activacion[i][field] = input.value;
+  } else {
+    if (!templates[day].bloques[section]) templates[day].bloques[section] = [];
+    if (!templates[day].bloques[section][i]) templates[day].bloques[section][i] = {nombre:"",sets:"",reps:""};
+    templates[day].bloques[section][i][field] = input.value;
+  }
+}
+
+function addExercise(section) {
+  ensureTplDay();
+  const day = currentTplDay;
+  const ex = { nombre: "", sets: "", reps: "" };
+  if (section === "activacion") templates[day].activacion.push(ex);
+  else templates[day].bloques[section].push(ex);
+  renderTplEditor();
+}
+
+function removeExercise(section, index) {
+  ensureTplDay();
+  const day = currentTplDay;
+  if (section === "activacion") templates[day].activacion.splice(index, 1);
+  else templates[day].bloques[section].splice(index, 1);
+  renderTplEditor();
+}
+
+async function saveTemplate() {
+  ensureTplDay();
+  const day = currentTplDay;
+  const tpl = templates[day];
+  const btn = document.querySelector("#page-templates .btn-primary");
+  btn.innerHTML = `<span class="spinner"></span> Guardando…`;
+  btn.disabled = true;
+  try {
+    const res = await fetch("/api/templates", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ dia: day, activacion: tpl.activacion, bloques: tpl.bloques })
+    });
+    if (res.status === 401) { window.location = "/login"; return; }
+    const data = await res.json();
+    if (data.ok) {
+      await fetchTemplates();
+      setStatus("tpl-status", "✅ Rutina del Día " + day + " guardada.", "success");
+    } else { throw new Error(data.error); }
+  } catch (e) {
+    setStatus("tpl-status", "❌ Error: " + e.message, "error");
+  }
+  btn.innerHTML = "💾 Guardar rutina del día";
+  btn.disabled = false;
+}
+
+function setStatus(id, msg, type) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.className = "status " + type;
+  if (type === "success") setTimeout(() => el.className = "status", 4000);
+}
+</script>
+{% endif %}
+</body>
+</html>
