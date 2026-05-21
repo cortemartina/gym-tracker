@@ -70,7 +70,7 @@ def is_logged_in():
 
 @app.route("/login")
 def login():
-    code_verifier = secrets.token_urlsafe(64)
+    code_verifier = base64.urlsafe_b64encode(secrets.token_bytes(32)).rstrip(b"=").decode()
     code_challenge = base64.urlsafe_b64encode(
         hashlib.sha256(code_verifier.encode()).digest()
     ).rstrip(b"=").decode()
