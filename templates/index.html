@@ -450,6 +450,8 @@ async function saveWorkout() {
         document.getElementById("train-content").innerHTML = "";
         document.getElementById("train-save-btn").style.display = "none";
         setStatus("train-status", "", "");
+        btn.innerHTML = "💾 Guardar entrenamiento";
+        btn.disabled = false;
       }, 2000);
     } else { throw new Error(data.error); }
   } catch (e) {
