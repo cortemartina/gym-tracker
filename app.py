@@ -8,6 +8,7 @@ import gspread
 import hashlib
 import base64
 import secrets
+import tempfile
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-cambiar-en-produccion")
@@ -15,6 +16,16 @@ app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-cambiar-en-producc
 os.environ["OAUTHLIB_INSECURE_TRANSPORT"] = "1"  # solo para desarrollo local
 
 CLIENT_SECRETS_FILE = "client_secret.json"
+
+def get_client_secrets_file():
+    client_secret_json = os.environ.get("GOOGLE_CLIENT_SECRET")
+    if client_secret_json:
+        tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False)
+        tmp.write(client_secret_json)
+        tmp.flush()
+        return tmp.name
+    return CLIENT_SECRETS_FILE
+
 SPREADSHEET_NAME = "Gym Tracker"
 SCOPES = [
     "openid",
@@ -65,7 +76,7 @@ def login():
     ).rstrip(b"=").decode()
     session["code_verifier"] = code_verifier
 
-    flow = Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES)
+    flow = Flow.from_client_secrets_file(get_client_secrets_file(), scopes=SCOPES)
     flow.redirect_uri = url_for("callback", _external=True)
     authorization_url, state = flow.authorization_url(
         access_type="offline",
@@ -80,7 +91,7 @@ def login():
 @app.route("/callback")
 def callback():
     flow = Flow.from_client_secrets_file(
-        CLIENT_SECRETS_FILE, scopes=SCOPES, state=session["state"]
+        get_client_secrets_file(), scopes=SCOPES, state=session["state"]
     )
     flow.redirect_uri = url_for("callback", _external=True)
     flow.fetch_token(
