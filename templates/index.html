@@ -175,6 +175,10 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 12px; margin-bottom: 12px;
     }
+    .log-table-wrapper {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
     .log-session-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
     .log-date { font-weight: 700; }
     .log-meta { font-size: 12px; color: var(--text-muted); }
@@ -490,7 +494,7 @@ async function loadLog() {
           <span class="log-date">${meta.fecha}</span>
           <span class="log-meta">Semana ${meta.semana} · Día ${meta.dia}</span>
         </div>
-        <table class="log-table">
+        <div class="log-table-wrapper"><table class="log-table">
           <tr><th>Bloque</th><th>Ejercicio</th><th>Sets</th><th>Reps</th><th>Peso</th><th>Comentario</th></tr>`;
       rows.forEach(row => {
         if (row.seccion === "activacion") {
@@ -503,7 +507,7 @@ async function loadLog() {
             <td style="color:var(--text-muted);font-size:12px">${row.comentario || ""}</td></tr>`;
         }
       });
-      html += `</table></div>`;
+      html += `</table></div></div>`;
     });
     content.innerHTML = html;
   } catch (e) {
@@ -512,10 +516,34 @@ async function loadLog() {
 }
 
 function filterLog() {
-  const query = document.getElementById("log-search").value.toLowerCase();
+  const query = document.getElementById("log-search").value.trim();
+  const queryLower = query.toLowerCase();
+
   document.querySelectorAll(".log-session").forEach(session => {
     const text = session.textContent.toLowerCase();
-    session.style.display = text.includes(query) ? "block" : "none";
+    session.style.display = (!query || text.includes(queryLower)) ? "block" : "none";
+  });
+
+  document.querySelectorAll(".log-table td").forEach(td => {
+    if (td.querySelector("input")) return; 
+    if (td.dataset.original !== undefined) {
+      td.innerHTML = td.dataset.original;
+    }
+  });
+
+  if (!query) return;
+
+  document.querySelectorAll(".log-session").forEach(session => {
+    if (session.style.display === "none") return;
+    session.querySelectorAll(".log-table td").forEach(td => {
+      if (td.querySelector("input")) return;
+      if (td.dataset.original === undefined) {
+        td.dataset.original = td.innerHTML;
+      }
+      const original = td.dataset.original;
+      const regex = new RegExp(`(${query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")})`, "gi");
+      td.innerHTML = original.replace(regex, `<mark style="background:var(--accent);color:#000;border-radius:3px;padding:0 2px">$1</mark>`);
+    });
   });
 }
 
