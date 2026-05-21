@@ -257,7 +257,7 @@
     <div class="row2" style="margin-bottom:10px">
       <div>
         <label>Fecha</label>
-        <div id="today-date" style="font-size:16px;font-weight:700;padding:10px 0 4px"></div>
+        <input type="date" id="today-date" style="font-size:16px;font-weight:700;" />
       </div>
       <div>
         <label>Semana</label>
@@ -315,8 +315,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function setTodayDate() {
   const d = new Date();
-  document.getElementById("today-date").textContent =
-    d.toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short" });
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  document.getElementById("today-date").value = `${yyyy}-${mm}-${dd}`;
 }
 
 function showPage(name, btn) {
@@ -408,7 +410,9 @@ async function saveWorkout() {
   const tpl = templates[dia];
   const rows = [];
   const sessionId = Date.now().toString();
-  const fecha = new Date().toLocaleDateString("es-AR");
+  const rawFecha = document.getElementById("today-date").value;
+  const [yyyy, mm, dd] = rawFecha.split("-");
+  const fecha = `${dd}/${mm}/${yyyy}`;
   if (tpl.activacion) {
     tpl.activacion.forEach(ex => {
       const comAct = document.getElementById(`com-activacion-${tpl.activacion.indexOf(ex)}`)?.value || "";
