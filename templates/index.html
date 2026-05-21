@@ -286,6 +286,10 @@
 <!-- HISTORIAL -->
 <div id="page-log" class="page">
   <div id="log-status" class="status"></div>
+  <div style="margin-bottom:12px">
+    <input type="text" id="log-search" placeholder="🔍 Buscar por ejercicio, fecha o día…"
+           oninput="filterLog()" style="background:var(--surface);border:1px solid var(--border)" />
+  </div>
   <div id="log-content"><div class="empty-state">Cargando historial…</div></div>
 </div>
 
@@ -487,15 +491,16 @@ async function loadLog() {
           <span class="log-meta">Semana ${meta.semana} · Día ${meta.dia}</span>
         </div>
         <table class="log-table">
-          <tr><th>Bloque</th><th>Ejercicio</th><th>Sets</th><th>Reps</th><th>Peso</th></tr>`;
+          <tr><th>Bloque</th><th>Ejercicio</th><th>Sets</th><th>Reps</th><th>Peso</th><th>Comentario</th></tr>`;
       rows.forEach(row => {
         if (row.seccion === "activacion") {
-          html += `<tr><td style="color:var(--text-muted)">Act.</td><td>${row.ejercicio}</td><td>${row.sets}</td><td>${row.reps}</td><td>—</td></tr>`;
+          html += `<tr><td style="color:var(--text-muted)">Act.</td><td>${row.ejercicio}</td><td>${row.sets}</td><td>${row.reps}</td><td>—</td><td style="color:var(--text-muted);font-size:12px">${row.comentario || ""}</td></tr>`;
         } else {
           html += `<tr><td>${row.seccion}</td><td>${row.ejercicio}</td><td>${row.sets}</td><td>${row.reps}</td>
-            <td><input class="edit-peso" type="number" inputmode="decimal" value="${row.peso}" step="0.5" min="0"
+            <td><input class="edit-peso" type="text" inputmode="decimal" value="${row.peso}"
               data-sid="${row.session_id}" data-ej="${row.ejercicio}" data-sec="${row.seccion}"
-              onchange="updatePeso(this)" /></td></tr>`;
+              onchange="updatePeso(this)" /></td>
+            <td style="color:var(--text-muted);font-size:12px">${row.comentario || ""}</td></tr>`;
         }
       });
       html += `</table></div>`;
@@ -504,6 +509,14 @@ async function loadLog() {
   } catch (e) {
     content.innerHTML = `<div class="empty-state" style="color:var(--danger)">Error: ${e.message}</div>`;
   }
+}
+
+function filterLog() {
+  const query = document.getElementById("log-search").value.toLowerCase();
+  document.querySelectorAll(".log-session").forEach(session => {
+    const text = session.textContent.toLowerCase();
+    session.style.display = text.includes(query) ? "block" : "none";
+  });
 }
 
 async function updatePeso(input) {
