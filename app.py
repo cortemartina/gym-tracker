@@ -187,14 +187,15 @@ def save_log():
         data = request.json
         sheet = get_sheet("Log")
         all_values = sheet.get_all_values()
-        header = ["session_id", "fecha", "semana", "dia", "seccion", "ejercicio", "sets", "reps", "peso"]
+        header = ["session_id", "fecha", "semana", "dia", "seccion", "ejercicio", "sets", "reps", "peso", "comentario"]
         if not all_values or all_values[0] != header:
             sheet.clear()
             sheet.append_row(header)
         for row in data["rows"]:
             sheet.append_row([
                 data["session_id"], data["fecha"], data["semana"], data["dia"],
-                row["seccion"], row["ejercicio"], row["sets"], row["reps"], row["peso"]
+                row["seccion"], row["ejercicio"], row["sets"], row["reps"], row["peso"],
+                row.get("comentario", "")
             ])
         return jsonify({"ok": True})
     except Exception as e:

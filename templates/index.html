@@ -139,7 +139,7 @@
     /* ── EXERCISE ROWS ── */
     .exercise-row {
       display: grid;
-      grid-template-columns: 1fr 48px 48px 72px;
+      grid-template-columns: 1fr 48px 48px 72px 1fr;
       gap: 6px;
       align-items: center;
       padding: 8px 0;
@@ -156,7 +156,7 @@
     }
     .weight-input:focus { outline: 2px solid var(--accent); border-color: transparent; }
     .activation-row {
-      display: grid; grid-template-columns: 1fr 48px 48px;
+      display: grid; grid-template-columns: 1fr 48px 48px 1fr;
       gap: 6px; align-items: center;
       padding: 6px 0; border-bottom: 1px solid var(--border);
     }
@@ -362,13 +362,14 @@ function loadTemplate() {
     html += `<div class="card"><div class="card-title">Activación</div>
       <div class="activation-row" style="padding-bottom:6px;border-bottom:1px solid var(--border)">
         <span class="col-header" style="text-align:left">Ejercicio</span>
-        <span class="col-header">Sets</span><span class="col-header">Reps</span>
+        <span class="col-header">Sets</span><span class="col-header">Reps</span><span class="col-header">Comentario</span>
       </div>`;
     tpl.activacion.forEach(ex => {
       html += `<div class="activation-row">
         <span class="exercise-name">${ex.nombre}</span>
         <span class="exercise-meta">${ex.sets}</span>
         <span class="exercise-meta">${ex.reps}</span>
+        <input type="text" class="weight-input" id="com-activacion-${tpl.activacion.indexOf(ex)}" placeholder="—" />
       </div>`;
     });
     html += `</div>`;
@@ -382,6 +383,7 @@ function loadTemplate() {
         <span class="col-header">Sets</span>
         <span class="col-header">Reps</span>
         <span class="col-header">Peso</span>
+        <span class="col-header">Comentario</span>
       </div>`;
     ejercicios.forEach((ex, i) => {
       html += `<div class="exercise-row">
@@ -389,6 +391,7 @@ function loadTemplate() {
         <input type="text" inputmode="text" class="weight-input" id="sets-${bloque}-${i}" value="${ex.sets}" style="text-align:center" />
         <input type="text" inputmode="text" class="weight-input" id="reps-${bloque}-${i}" value="${ex.reps}" style="text-align:center" />
         <input type="number" inputmode="decimal" class="weight-input" id="peso-${bloque}-${i}" placeholder="kg" step="0.5" min="0" />
+        <input type="text" class="weight-input" id="com-${bloque}-${i}" placeholder="—" />
       </div>`;
     });
     html += `</div>`;
@@ -408,7 +411,8 @@ async function saveWorkout() {
   const fecha = new Date().toLocaleDateString("es-AR");
   if (tpl.activacion) {
     tpl.activacion.forEach(ex => {
-      rows.push({ seccion: "activacion", ejercicio: ex.nombre, sets: ex.sets, reps: ex.reps, peso: "" });
+      const comAct = document.getElementById(`com-activacion-${tpl.activacion.indexOf(ex)}`)?.value || "";
+      rows.push({ seccion: "activacion", ejercicio: ex.nombre, sets: ex.sets, reps: ex.reps, peso: "", comentario: comAct });
     });
   }
   ["A","B","C","D"].forEach(bloque => {
@@ -418,7 +422,8 @@ async function saveWorkout() {
       const peso = document.getElementById(`peso-${bloque}-${i}`)?.value || "";
       const sets = document.getElementById(`sets-${bloque}-${i}`)?.value || ex.sets;
       const reps = document.getElementById(`reps-${bloque}-${i}`)?.value || ex.reps;
-      rows.push({ seccion: bloque, ejercicio: ex.nombre, sets, reps, peso });
+      const comentario = document.getElementById(`com-${bloque}-${i}`)?.value || "";
+      rows.push({ seccion: bloque, ejercicio: ex.nombre, sets, reps, peso, comentario });
     });
   });
   const btn = document.querySelector("#train-save-btn .btn");
