@@ -390,7 +390,7 @@ function loadTemplate() {
         <span class="exercise-name">${ex.nombre}</span>
         <input type="text" inputmode="text" class="weight-input" id="sets-${bloque}-${i}" value="${ex.sets}" style="text-align:center" />
         <input type="text" inputmode="text" class="weight-input" id="reps-${bloque}-${i}" value="${ex.reps}" style="text-align:center" />
-        <input type="number" inputmode="decimal" class="weight-input" id="peso-${bloque}-${i}" placeholder="kg" step="0.5" min="0" />
+        <input type="text" inputmode="decimal" class="weight-input" id="peso-${bloque}-${i}" placeholder="kg" />
         <input type="text" class="weight-input" id="com-${bloque}-${i}" placeholder="—" />
       </div>`;
     });
