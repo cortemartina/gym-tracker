@@ -266,6 +266,27 @@ def get_last_log(dia):
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
     
+@app.route("/api/log/last", methods=["GET"])
+def get_all_last_logs():
+    if not is_logged_in():
+        return jsonify({"ok": False, "error": "no_auth"}), 401
+    try:
+        sheet = get_sheet("Log")
+        records = sheet.get_all_records()
+        last = {}
+        for row in records:
+            dia = str(row.get("dia"))
+            if dia not in last:
+                last[dia] = {}
+            key = f"{row['seccion']}-{row['ejercicio']}"
+            last[dia][key] = {
+                "peso": row.get("peso", ""),
+                "comentario": row.get("comentario", "")
+            }
+        return jsonify({"ok": True, "last": last})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+    
 # ── MAIN ───────────────────────────────────────────────────────────────────────
 
 @app.route("/")

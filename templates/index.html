@@ -314,6 +314,7 @@
 
 <script>
 let templates = {};
+let lastLogs = {};
 let currentTplDay = 1;
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -341,10 +342,15 @@ function showPage(name, btn) {
 // ── TEMPLATES ──
 async function fetchTemplates() {
   try {
-    const res = await fetch("/api/templates");
-    if (res.status === 401) { window.location = "/login"; return; }
-    const data = await res.json();
-    if (data.ok) templates = data.templates;
+    const [tplRes, lastRes] = await Promise.all([
+      fetch("/api/templates"),
+      fetch("/api/log/last")
+    ]);
+    if (tplRes.status === 401) { window.location = "/login"; return; }
+    const tplData = await tplRes.json();
+    const lastData = await lastRes.json();
+    if (tplData.ok) templates = tplData.templates;
+    if (lastData.ok) lastLogs = lastData.last;
   } catch (e) { console.error(e); }
 }
 
@@ -356,7 +362,7 @@ function resetDia() {
   setStatus("train-status", "", "");
 }
 
-async function loadTemplate() {
+function loadTemplate() {
   const dia = document.getElementById("sel-dia").value;
   const content = document.getElementById("train-content");
   const saveBtn = document.getElementById("train-save-btn");
@@ -368,15 +374,7 @@ async function loadTemplate() {
     return;
   }
 
-  // Fetch últimos datos para este día
-  let last = {};
-  try {
-    const res = await fetch(`/api/log/last/${dia}`);
-    if (res.ok) {
-      const data = await res.json();
-      if (data.ok) last = data.last;
-    }
-  } catch (e) { console.error(e); }
+  const last = lastLogs[dia] || {};
 
   let html = "";
   if (tpl.activacion && tpl.activacion.length) {
