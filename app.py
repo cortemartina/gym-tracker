@@ -247,7 +247,25 @@ def update_log(session_id):
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 
-
+@app.route("/api/log/last/<int:dia>", methods=["GET"])
+def get_last_log(dia):
+    if not is_logged_in():
+        return jsonify({"ok": False, "error": "no_auth"}), 401
+    try:
+        sheet = get_sheet("Log")
+        records = sheet.get_all_records()
+        last = {}
+        for row in records:
+            if str(row.get("dia")) == str(dia):
+                key = f"{row['seccion']}-{row['ejercicio']}"
+                last[key] = {
+                    "peso": row.get("peso", ""),
+                    "comentario": row.get("comentario", "")
+                }
+        return jsonify({"ok": True, "last": last})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+    
 # ── MAIN ───────────────────────────────────────────────────────────────────────
 
 @app.route("/")

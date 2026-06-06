@@ -356,7 +356,7 @@ function resetDia() {
   setStatus("train-status", "", "");
 }
 
-function loadTemplate() {
+async function loadTemplate() {
   const dia = document.getElementById("sel-dia").value;
   const content = document.getElementById("train-content");
   const saveBtn = document.getElementById("train-save-btn");
@@ -367,6 +367,17 @@ function loadTemplate() {
     saveBtn.style.display = "none";
     return;
   }
+
+  // Fetch últimos datos para este día
+  let last = {};
+  try {
+    const res = await fetch(`/api/log/last/${dia}`);
+    if (res.ok) {
+      const data = await res.json();
+      if (data.ok) last = data.last;
+    }
+  } catch (e) { console.error(e); }
+
   let html = "";
   if (tpl.activacion && tpl.activacion.length) {
     html += `<div class="card"><div class="card-title">Activación</div>
@@ -374,12 +385,14 @@ function loadTemplate() {
         <span class="col-header" style="text-align:left">Ejercicio</span>
         <span class="col-header">Sets</span><span class="col-header">Reps</span><span class="col-header">Comentario</span>
       </div>`;
-    tpl.activacion.forEach(ex => {
+    tpl.activacion.forEach((ex, i) => {
+      const key = `activacion-${ex.nombre}`;
+      const lastCom = last[key]?.comentario || "";
       html += `<div class="activation-row">
         <span class="exercise-name">${ex.nombre}</span>
         <span class="exercise-meta">${ex.sets}</span>
         <span class="exercise-meta">${ex.reps}</span>
-        <input type="text" class="weight-input" id="com-activacion-${tpl.activacion.indexOf(ex)}" placeholder="—" />
+        <input type="text" class="weight-input" id="com-activacion-${i}" placeholder="${lastCom}" />
       </div>`;
     });
     html += `</div>`;
@@ -396,12 +409,15 @@ function loadTemplate() {
         <span class="col-header">Comentario</span>
       </div>`;
     ejercicios.forEach((ex, i) => {
+      const key = `${bloque}-${ex.nombre}`;
+      const lastPeso = last[key]?.peso || "";
+      const lastCom = last[key]?.comentario || "";
       html += `<div class="exercise-row">
         <span class="exercise-name">${ex.nombre}</span>
         <input type="text" inputmode="text" class="weight-input" id="sets-${bloque}-${i}" value="${ex.sets}" style="text-align:center" />
         <input type="text" inputmode="text" class="weight-input" id="reps-${bloque}-${i}" value="${ex.reps}" style="text-align:center" />
-        <input type="text" inputmode="decimal" class="weight-input" id="peso-${bloque}-${i}" placeholder="kg" />
-        <input type="text" class="weight-input" id="com-${bloque}-${i}" placeholder="—" />
+        <input type="text" inputmode="decimal" class="weight-input" id="peso-${bloque}-${i}" placeholder="${lastPeso}" />
+        <input type="text" class="weight-input" id="com-${bloque}-${i}" placeholder="${lastCom}" />
       </div>`;
     });
     html += `</div>`;
