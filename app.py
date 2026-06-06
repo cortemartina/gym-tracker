@@ -9,6 +9,7 @@ import hashlib
 import base64
 import secrets
 import tempfile
+from datetime import date
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key-cambiar-en-produccion")
@@ -165,14 +166,25 @@ def save_templates():
         if not all_records or all_records[0] != ["dia", "seccion", "ejercicio", "sets", "reps"]:
             sheet.clear()
             sheet.append_row(["dia", "seccion", "ejercicio", "sets", "reps"])
-
+        rows_to_insert = []
         for ex in data.get("activacion", []):
             sheet.append_row([data["dia"], "activacion", ex["nombre"], ex["sets"], ex["reps"]])
+            rows_to_insert.append([str(date.today()), data["dia"], "activacion", ex["nombre"], ex["sets"], ex["reps"]])
         for bloque, ejercicios in data.get("bloques", {}).items():
             for ex in ejercicios:
                 sheet.append_row([data["dia"], bloque, ex["nombre"], ex["sets"], ex["reps"]])
+                rows_to_insert.append([str(date.today()), data["dia"], bloque, ex["nombre"], ex["sets"], ex["reps"]])
+
+        history_sheet = get_sheet("Templates_history")
+        all_values = history_sheet.get_all_values()
+        if not all_values or all_values[0] != ["fecha", "dia", "seccion", "ejercicio", "sets", "reps"]:
+            history_sheet.clear()
+            history_sheet.append_row(["fecha", "dia", "seccion", "ejercicio", "sets", "reps"])
+        for row in rows_to_insert:
+            history_sheet.append_row(row)
 
         return jsonify({"ok": True})
+        
     except Exception as e:
         return jsonify({"ok": False, "error": str(e)}), 500
 
