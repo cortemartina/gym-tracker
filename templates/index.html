@@ -271,7 +271,7 @@
         </select>
       </div>
     </div>
-    <label>Día de entrenamiento</label>
+    <label>Día de entrenamiento <span id="loading-indicator" style="color:var(--text-muted);font-size:11px">cargando…</span></label>
     <select id="sel-dia" onchange="loadTemplate()">
       <option value="">Elegí el día</option>
       <option value="1">Día 1</option>
@@ -319,7 +319,10 @@ let currentTplDay = 1;
 
 document.addEventListener("DOMContentLoaded", () => {
   setTodayDate();
-  fetchTemplates();
+  document.getElementById("sel-dia").disabled = true;
+  fetchTemplates().then(() => {
+    document.getElementById("sel-dia").disabled = false;
+  });
 });
 
 function setTodayDate() {
@@ -351,6 +354,7 @@ async function fetchTemplates() {
     const lastData = await lastRes.json();
     if (tplData.ok) templates = tplData.templates;
     if (lastData.ok) lastLogs = lastData.last;
+    document.getElementById("loading-indicator").style.display = "none";
   } catch (e) { console.error(e); }
 }
 
