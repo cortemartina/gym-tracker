@@ -449,8 +449,7 @@ async function saveWorkout() {
     const ejercicios = tpl.bloques[bloque];
     if (!ejercicios) return;
     ejercicios.forEach((ex, i) => {
-      const peso = document.getElementById(`peso-${bloque}-${i}`)?.value || "";
-      console.log("peso leído:", peso);
+      const peso = (document.getElementById(`peso-${bloque}-${i}`)?.value || "").replace(",", ".");
       const sets = document.getElementById(`sets-${bloque}-${i}`)?.value || ex.sets;
       const reps = document.getElementById(`reps-${bloque}-${i}`)?.value || ex.reps;
       const comentario = document.getElementById(`com-${bloque}-${i}`)?.value || "";
