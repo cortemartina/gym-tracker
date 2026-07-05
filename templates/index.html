@@ -120,6 +120,7 @@
       font-size: 15px;
       appearance: none;
       -webkit-appearance: none;
+      font-family: inherit;
     }
     select:focus, input:focus { outline: 2px solid var(--accent); }
     label { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 4px; margin-top: 10px; }
@@ -394,7 +395,7 @@ function loadTemplate() {
         <span class="exercise-name">${ex.nombre}</span>
         <span class="exercise-meta">${ex.sets}</span>
         <span class="exercise-meta">${ex.reps}</span>
-       <textarea class="weight-input" id="com-activacion-${i}" placeholder="${lastCom}" rows="1" style="resize:none;overflow-x:auto;overflow-y:hidden;white-space:nowrap"></textarea>
+       <input type="text" class="weight-input" id="com-activacion-${i}" placeholder="${lastCom}" style="font-family:inherit" />
       </div>`;
     });
     html += `</div>`;
@@ -419,7 +420,7 @@ function loadTemplate() {
         <input type="text" inputmode="text" class="weight-input" id="sets-${bloque}-${i}" value="${ex.sets}" style="text-align:center" />
         <input type="text" inputmode="text" class="weight-input" id="reps-${bloque}-${i}" value="${ex.reps}" style="text-align:center" />
         <input type="text" inputmode="decimal" class="weight-input" id="peso-${bloque}-${i}" placeholder="${lastPeso}" />
-        <textarea class="weight-input" id="com-${bloque}-${i}" placeholder="${lastCom}" rows="1" style="resize:none;overflow-x:auto;overflow-y:hidden;white-space:nowrap"></textarea>
+        <input type="text" class="weight-input" id="com-${bloque}-${i}" placeholder="${lastCom}" style="font-family:inherit" />
       </div>`;
     });
     html += `</div>`;
