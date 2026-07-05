@@ -395,7 +395,8 @@ function loadTemplate() {
         <span class="exercise-name">${ex.nombre}</span>
         <span class="exercise-meta">${ex.sets}</span>
         <span class="exercise-meta">${ex.reps}</span>
-       <input type="text" class="weight-input" id="com-activacion-${i}" placeholder="${lastCom}" style="font-family:inherit" />
+       <input type="text" class="weight-input" id="com-activacion-${i}" placeholder="—" />
+${lastCom ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;overflow-x:auto;white-space:nowrap">${lastCom}</div>` : ""}
       </div>`;
     });
     html += `</div>`;
@@ -420,7 +421,8 @@ function loadTemplate() {
         <input type="text" inputmode="text" class="weight-input" id="sets-${bloque}-${i}" value="${ex.sets}" style="text-align:center" />
         <input type="text" inputmode="text" class="weight-input" id="reps-${bloque}-${i}" value="${ex.reps}" style="text-align:center" />
         <input type="text" inputmode="decimal" class="weight-input" id="peso-${bloque}-${i}" placeholder="${lastPeso}" />
-        <input type="text" class="weight-input" id="com-${bloque}-${i}" placeholder="${lastCom}" style="font-family:inherit" />
+        <input type="text" class="weight-input" id="com-${bloque}-${i}" placeholder="—" />
+${lastCom ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;overflow-x:auto;white-space:nowrap">${lastCom}</div>` : ""}
       </div>`;
     });
     html += `</div>`;
