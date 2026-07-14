@@ -142,10 +142,12 @@
       display: grid;
       grid-template-columns: 1fr 48px 48px 72px 1fr;
       gap: 6px;
-      align-items: center;
+      align-items: start;
       padding: 8px 0;
       border-bottom: 1px solid var(--border);
+      min-width: 0;
     }
+    .exercise-row > * {min-width: 0; }
     .exercise-row:last-child { border-bottom: none; }
     .exercise-name { font-size: 14px; }
     .exercise-meta { font-size: 12px; color: var(--text-muted); text-align: center; }
@@ -158,9 +160,11 @@
     .weight-input:focus { outline: 2px solid var(--accent); border-color: transparent; }
     .activation-row {
       display: grid; grid-template-columns: 1fr 48px 48px 1fr;
-      gap: 6px; align-items: center;
+      gap: 6px; align-items: start;
       padding: 6px 0; border-bottom: 1px solid var(--border);
+      min-width: 0;
     }
+    .activation-row > * {min-width: 0; }
     .activation-row:last-child { border-bottom: none; }
 
     /* ── STATUS ── */
@@ -397,8 +401,7 @@ function loadTemplate() {
         <span class="exercise-meta">${ex.reps}</span>
         <div style="display:flex;flex-direction:column">
           <input type="text" class="weight-input" id="com-activacion-${i}" placeholder="—" />
-          ${lastCom ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;overflow-x:auto;white-space:nowrap">${lastCom}</div>` : ""}
-        </div>
+          ${lastCom ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;overflow-wrap:break-word;word-break:break-word;white-space:normal">${lastCom}</div>` : ""}
       </div>`;
     });
     html += `</div>`;
@@ -425,7 +428,7 @@ function loadTemplate() {
         <input type="text" inputmode="decimal" class="weight-input" id="peso-${bloque}-${i}" placeholder="${lastPeso}" />
         <div style="display:flex;flex-direction:column">
           <input type="text" class="weight-input" id="com-${bloque}-${i}" placeholder="—" />
-          ${lastCom ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;overflow-x:auto;white-space:nowrap">${lastCom}</div>` : ""}
+          ${lastCom ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;overflow-wrap:break-word;word-break:break-word;white-space:normal">${lastCom}</div>` : ""}
         </div>
       </div>`;
     });
