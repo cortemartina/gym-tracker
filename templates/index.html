@@ -515,7 +515,8 @@ async function saveWorkout() {
     });
     if (res.status === 401) { window.location = "/login"; return; }
     const data = await res.json();
-    if (data.ok) {
+      if (data.ok) {
+      await fetchTemplates();
       setStatus("train-status", "✅ Entrenamiento guardado correctamente.", "success");
       btn.innerHTML = "✅ Guardado";
       setTimeout(() => {
