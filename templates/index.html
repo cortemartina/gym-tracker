@@ -152,6 +152,12 @@
     .exercise-name { font-size: 14px; }
     .exercise-meta { font-size: 12px; color: var(--text-muted); text-align: center; }
     .col-header { font-size: 11px; color: var(--text-muted); text-align: center; font-weight: 600; }
+    .add-set-btn {
+      background: none; border: 1px dashed var(--border); color: var(--accent);
+      font-size: 12px; border-radius: 6px; padding: 5px 10px; margin: 6px 0 2px;
+      cursor: pointer;
+    }
+    .add-set-btn:hover { border-color: var(--accent); }
     .weight-input {
       background: var(--surface2); border: 1px solid var(--border);
       border-radius: 6px; color: var(--text);
@@ -430,14 +436,35 @@ function loadTemplate() {
         <div style="display:flex;flex-direction:column">
           <input type="text" class="weight-input" id="com-${bloque}-${i}" placeholder="—" />
           ${lastCom ? `<div style="font-size:11px;color:var(--text-muted);margin-top:2px;overflow-wrap:break-word;word-break:break-word;white-space:normal">${lastCom}</div>` : ""}
-        </div>
+                </div>
       </div>`;
+      if (bloque === "A" && i === 0) {
+        html += `<div id="extra-container-A-0"></div>
+        <button type="button" class="add-set-btn" onclick="addExtraSet('A',0)">+ Agregar serie</button>`;
+      }
     });
     html += `</div>`;
   });
   content.innerHTML = html;
   saveBtn.style.display = "block";
   setStatus("train-status", "", "");
+}
+
+function addExtraSet(bloque, i) {
+  const container = document.getElementById(`extra-container-${bloque}-${i}`);
+  const n = container.children.length + 2; // la fila principal ya es la "Serie 1"
+  const row = document.createElement("div");
+  row.className = "exercise-row extra-set-row";
+  row.dataset.bloque = bloque;
+  row.dataset.i = i;
+  row.dataset.serie = n;
+  row.innerHTML = `
+    <span class="exercise-meta" style="cursor:pointer" onclick="this.closest('.exercise-row').remove()">Serie ${n} ✕</span>
+    <span></span>
+    <input type="text" class="weight-input extra-reps" placeholder="reps" style="text-align:center" />
+    <input type="text" inputmode="decimal" class="weight-input extra-peso" placeholder="peso" />
+    <input type="text" class="weight-input extra-com" placeholder="—" />`;
+  container.appendChild(row);
 }
 
 async function saveWorkout() {
@@ -466,6 +493,16 @@ async function saveWorkout() {
       const comentario = document.getElementById(`com-${bloque}-${i}`)?.value || "";
       rows.push({ seccion: bloque, ejercicio: ex.nombre, sets, reps, peso, comentario });
     });
+  });
+  document.querySelectorAll(".extra-set-row").forEach(row => {
+    const bloque = row.dataset.bloque;
+    const i = parseInt(row.dataset.i);
+    const ejercicio = tpl.bloques[bloque][i].nombre;
+    const reps = row.querySelector(".extra-reps")?.value || "";
+    const peso = (row.querySelector(".extra-peso")?.value || "").replace(",", ".");
+    const comentario = row.querySelector(".extra-com")?.value || "";
+    const serie = row.dataset.serie;
+    rows.push({ seccion: bloque, ejercicio: `${ejercicio} (Serie ${serie})`, sets: "1", reps, peso, comentario });
   });
   const btn = document.querySelector("#train-save-btn .btn");
   btn.innerHTML = `<span class="spinner"></span> Guardando…`;
