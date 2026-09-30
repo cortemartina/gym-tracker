@@ -211,6 +211,15 @@
       color: var(--text-muted); cursor: pointer; font-size: 14px; font-weight: 600;
     }
     .day-tab.active { background: var(--accent); color: #000; border-color: var(--accent); }
+    .prog-sub { color: var(--text-muted); font-size: 13px; margin: -8px 0 16px; }
+    .prog-row {
+      display: grid; grid-template-columns: 1fr 44px 44px; gap: 6px;
+      align-items: center; padding: 7px 0; border-bottom: 1px solid var(--border); font-size: 14px;
+    }
+    .prog-row:last-child { border-bottom: none; }
+    .prog-row.prog-head { font-size: 11px; color: var(--text-muted); font-weight: 600; padding-bottom: 6px; }
+    .prog-row span:not(:first-child) { text-align: center; }
+    .prog-note { color: #ff6b6b; font-style: italic; font-size: 11px; margin-top: -2px; }
     .exercise-editor {
       display: grid; grid-template-columns: 1fr 60px 60px 28px;
       gap: 6px; align-items: center; margin-bottom: 6px;
@@ -316,11 +325,13 @@
     <div class="day-tab" onclick="selectTplDay(2)">Día 2</div>
     <div class="day-tab" onclick="selectTplDay(3)">Día 3</div>
     <div class="day-tab" onclick="selectTplDay(4)">Día 4</div>
+    <div class="day-tab" data-tab="prog" onclick="selectTplTab('prog')">Progresiones</div>
   </div>
   <div id="tpl-editor"></div>
-  <button class="btn btn-primary" style="margin-top:8px" onclick="saveTemplate()">
+  <button class="btn btn-primary" id="tpl-save-btn" style="margin-top:8px" onclick="saveTemplate()">
     💾 Guardar rutina del día
   </button>
+  <div id="tpl-progresiones" style="display:none"></div>
 </div>
 
 <script>
@@ -633,7 +644,50 @@ async function updatePeso(input) {
 function selectTplDay(day) {
   currentTplDay = day;
   document.querySelectorAll(".day-tab").forEach((t, i) => t.classList.toggle("active", i + 1 === day));
+  document.getElementById("tpl-editor").style.display = "block";
+  document.getElementById("tpl-save-btn").style.display = "block";
+  document.getElementById("tpl-progresiones").style.display = "none";
   renderTplEditor();
+}
+
+function selectTplTab(tab) {
+  document.querySelectorAll(".day-tab").forEach(t => t.classList.remove("active"));
+  document.querySelector(`.day-tab[data-tab="${tab}"]`).classList.add("active");
+  document.getElementById("tpl-editor").style.display = "none";
+  document.getElementById("tpl-save-btn").style.display = "none";
+  document.getElementById("tpl-progresiones").style.display = "block";
+  renderProgresiones();
+}
+
+function progRow(pct, nota, sets, reps) {
+  return `<div class="prog-row"><span>${pct}${nota ? ` <span class="prog-note" style="display:inline">(${nota})</span>` : ""}</span><span>${sets}</span><span>${reps}</span></div>`;
+}
+
+function progCard(titulo, filas, notaFinal) {
+  let html = `<div class="card"><div class="card-title">${titulo}</div>
+    <div class="prog-row prog-head"><span>%TM</span><span>Sets</span><span>Reps</span></div>`;
+  filas.forEach(f => { html += progRow(f[0], f[1], f[2], f[3]); });
+  if (notaFinal) html += `<div class="prog-note">${notaFinal}</div>`;
+  html += `</div>`;
+  return html;
+}
+
+function renderProgresiones() {
+  let html = `<div class="card"><div class="card-title">Calcular Training Max (TM)</div>
+    <div class="prog-sub">Tu máximo x 0.9</div></div>`;
+  html += progCard("Semana 1", [
+    ["65%", "", 1, 5], ["75%", "", 1, 5], ["85%", "A.M.R.A.P", 1, "5 o +"], ["65%", "", 2, 5]
+  ], "Lo más técnico y rápido posible");
+  html += progCard("Semana 2", [
+    ["70%", "", 1, 3], ["80%", "", 1, 3], ["90%", "A.M.R.A.P", 1, "3 o +"], ["70%", "", 2, 5]
+  ], "Lo más técnico y rápido posible");
+  html += progCard("Semana 3", [
+    ["75%", "", 1, 5], ["85%", "", 1, 3], ["95%", "A.M.R.A.P", 1, "1 o +"], ["75%", "", 2, 5]
+  ], "Lo más técnico y rápido posible");
+  html += progCard("Semana 4 Descarga", [
+    ["55/60%", "", 3, 5]
+  ], "Súper técnico y controlado");
+  document.getElementById("tpl-progresiones").innerHTML = html;
 }
 
 function renderTplEditor() {
